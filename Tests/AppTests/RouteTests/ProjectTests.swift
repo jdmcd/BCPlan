@@ -36,7 +36,7 @@ class ProjectTests: TestCase {
         let secondUserId: Int = try! secondUser!.get("id")
         let acceptedProject = try createProject(adminId: Identifier(secondUserId))
         
-        try ProjectUser(user_id: Identifier(userId), project_id: acceptedProject.id!, attending: true).save()
+        try ProjectUser(user_id: Identifier(userId), project_id: acceptedProject.id!, attending: false, accepted: true).save()
         
         let acceptedRequest = Request(method: .get,
                               uri: "/api/v1/projects",
@@ -52,7 +52,7 @@ class ProjectTests: TestCase {
         let thirdUserId: Int = try! thirdUser!.get("id")
         let pendingProject = try createProject(adminId: Identifier(thirdUserId))
         
-        try ProjectUser(user_id: Identifier(userId), project_id: pendingProject.id!, attending: false).save()
+        try ProjectUser(user_id: Identifier(userId), project_id: pendingProject.id!, attending: false, accepted: false).save()
         
         let pendingRequest = Request(method: .get,
                                       uri: "/api/v1/projects",

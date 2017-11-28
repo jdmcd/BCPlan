@@ -58,11 +58,15 @@ final class User: Model {
     }
     
     func acceptedProjects() throws -> [Project] {
-        return try projectInvitations.makeQuery().filter(ProjectUser.self, ProjectUser.Field.attending.rawValue, true).all()
+        return try projectInvitations.makeQuery().filter(ProjectUser.self, ProjectUser.Field.accepted.rawValue, true).all()
     }
     
     func pendingProjects() throws -> [Project] {
-        return try projectInvitations.makeQuery().filter(ProjectUser.self, ProjectUser.Field.attending.rawValue, false).all()
+        return try projectInvitations.makeQuery().filter(ProjectUser.self, ProjectUser.Field.accepted.rawValue, false).all()
+    }
+    
+    func attendingProjects() throws -> [Project] {
+        return try projectInvitations.makeQuery().filter(ProjectUser.self, ProjectUser.Field.attending.rawValue, true).all()
     }
 
     //this method could be made easier to read, but it's been left as is because

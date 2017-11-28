@@ -66,15 +66,46 @@ class ProjectTests: TestCase {
     }
     
     func testGetProject() throws {
+        let project = try createProject()
         
+        let request = Request(method: .get,
+                              uri: "/api/v1/project/\(project.id!.int!)",
+                              headers: ["Content-Type": "application/json", "Authorization": "Bearer \(token)", HeaderKey(APIKey.keyName): FakeAPIKey.apiKey])
+        
+        try drop.testResponse(to: request)
+            .assertStatus(is: .ok)
+            .assertJSON("id", passes: { $0.int == project.id!.int! })
+            .assertJSON("name", passes: { $0.string == project.name })
+            .assertJSON("user_id", passes: { $0.int == project.user_id.int! })
     }
     
     func testUnauthorizedGetProject() throws {
+        let secondUser = try createUser(drop: drop, email: "email2@email.com")
+        let secondUserId: Int = try! secondUser!.get("id")
+        let project = try createProject(adminId: Identifier(secondUserId))
         
+        let request = Request(method: .get,
+                              uri: "/api/v1/project/\(project.id!.int!)",
+            headers: ["Content-Type": "application/json", "Authorization": "Bearer \(token)", HeaderKey(APIKey.keyName): FakeAPIKey.apiKey])
+        
+        try drop.testResponse(to: request).assertStatus(is: .notFound)
     }
     
     func testCreateProject() throws {
+        var body = JSON()
+        try body.set("name", "Project name")
+        try body.set("user_id", 0)
         
+        let request = Request(method: .post,
+                              uri: "/api/v1/project",
+                              headers: ["Content-Type": "application/json", "Authorization": "Bearer \(token)", HeaderKey(APIKey.keyName): FakeAPIKey.apiKey],
+                              body: try Body(body))
+        
+        try drop.testResponse(to: request)
+            .assertStatus(is: .ok)
+            .assertJSON("id", passes: { $0.int != nil })
+            .assertJSON("name", passes: { $0.string != nil })
+            .assertJSON("user_id", equals: userId)
     }
     
     @discardableResult

@@ -8,7 +8,8 @@ XCTMain([
     testCase(RegistrationTests.allTests),
     testCase(MeTests.allTests),
     testCase(SeedTests.allTests),
-    testCase(ProjectTests.allTests)
+    testCase(ProjectTests.allTests),
+    testCase(InvitationTests.allTests)
 ])
 
 #endif

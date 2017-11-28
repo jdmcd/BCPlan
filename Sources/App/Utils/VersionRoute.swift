@@ -1,5 +1,4 @@
 import Routing
-import Flash
 import AuthProvider
 
 struct VersionRoute {
@@ -17,29 +16,15 @@ extension RouteBuilder {
 }
 
 extension RouteBuilder {
-    fileprivate func middleware(_ type: FrontendMiddlewareType) -> [Middleware] {
-        var middleware: [Middleware] = [
-            FlashMiddleware(),
-            PersistMiddleware(User.self)
-        ]
-        
-        if type == .all {
-            middleware.append(AuthedMiddleware())
-        }
-        
-        return middleware
+    fileprivate func middleware() -> [Middleware] {
+        return [TokenAuthenticationMiddleware(User.self)]
     }
     
-    func frontend(_ type: FrontendMiddlewareType = .all, handler: (RouteBuilder) -> ()) {
-        group(middleware: middleware(type), handler: handler)
+    func auth(handler: (RouteBuilder) -> ()) {
+        group(middleware: middleware(), handler: handler)
     }
     
-    func frontend(_ type: FrontendMiddlewareType = .all) -> RouteBuilder {
-        return grouped(middleware(type))
+    func authed() -> RouteBuilder {
+        return grouped(middleware())
     }
-}
-
-enum FrontendMiddlewareType {
-    case all
-    case noAuthed
 }

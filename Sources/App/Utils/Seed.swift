@@ -15,3 +15,7 @@ extension Database {
         try seed([object])
     }
 }
+
+struct APIKey {
+    static var apiKey = ""
+}

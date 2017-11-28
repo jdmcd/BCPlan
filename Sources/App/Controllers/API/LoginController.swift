@@ -16,8 +16,6 @@ final class LoginController: RouteCollection {
         let invalidCredentials = Abort(.badRequest, reason: "Invalid credentials")
         
         guard let json = req.json else { throw Abort.badRequest }
-        
-        //TODO: - When Swift 4 is released add a generic subscript to `StructuredDataWrapper` so that `.rawValue` doesn't have to be used. See: https://github.com/apple/swift-evolution/blob/master/proposals/0148-generic-subscripts.md
         guard let email = json[User.Field.email.rawValue]?.string else { throw Abort.badRequest }
         guard let password = json[User.Field.password.rawValue]?.string else { throw Abort.badRequest }
         

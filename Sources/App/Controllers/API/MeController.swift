@@ -6,7 +6,7 @@ import MySQL
 
 final class MeController: RouteCollection {
     func build(_ builder: RouteBuilder) throws {
-        builder.versioned().group(TokenAuthenticationMiddleware(User.self)) { build in
+        builder.versioned().auth() { build in
             build.get("me", handler: me)
             build.patch("me", handler: updateMe)
             build.patch("password", handler: updatePassword)
@@ -41,15 +41,16 @@ final class MeController: RouteCollection {
     func updatePassword(_ req: Request) throws -> ResponseRepresentable {
         guard let json = req.json else { throw Abort(.badRequest, reason: "Invalid JSON") }
         
+        let hasher = BCryptHasher()
         let oldPassword: String = try json.get("oldPassword")
         let newPassword: String = try json.get("newPassword")
         let user = try req.user()
         
-        if !(try BCryptHasher().verify(password: oldPassword.bytes, matches: user.password.bytes)) {
+        if !(try hasher.verify(password: oldPassword.bytes, matches: user.password.bytes)) {
             throw Abort(.unauthorized, reason: "Incorrect old password")
         }
         
-        user.password = try BCryptHasher().make(newPassword.bytes).makeString()
+        user.password = try hasher.make(newPassword.bytes).makeString()
         try user.save()
         
         return try user.makeJSON()

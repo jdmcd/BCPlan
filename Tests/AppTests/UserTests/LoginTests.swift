@@ -42,7 +42,7 @@ class LoginTests: TestCase {
         
         let request = Request(method: .post,
                               uri: "/api/v1/login",
-                              headers: ["Content-Type": "application/json"],
+                              headers: ["Content-Type": "application/json", HeaderKey(APIKey.keyName): FakeAPIKey.apiKey],
                               body: body)
         
         try drop.testResponse(to: request)
@@ -80,7 +80,7 @@ class LoginTests: TestCase {
         
         let request = Request(method: .post,
                               uri: "/api/v1/register",
-                              headers: ["Content-Type": "application/json"],
+                              headers: ["Content-Type": "application/json", HeaderKey(APIKey.keyName): FakeAPIKey.apiKey],
                               body: body)
         
         let response = try drop.testResponse(to: request)
@@ -92,7 +92,7 @@ class LoginTests: TestCase {
     func loginUser(body: Body) throws {
         let request = Request(method: .post,
                               uri: "/api/v1/login",
-                              headers: ["Content-Type": "application/json"],
+                              headers: ["Content-Type": "application/json", HeaderKey(APIKey.keyName): FakeAPIKey.apiKey],
                               body: body)
         
         try drop.testResponse(to: request)

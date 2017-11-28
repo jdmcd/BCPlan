@@ -71,7 +71,7 @@ class RegistrationTests: TestCase {
     private func failAgainstData(body: Body) throws {
         let request = Request(method: .post,
                               uri: "/api/v1/register",
-                              headers: ["Content-Type": "application/json"],
+                              headers: ["Content-Type": "application/json", HeaderKey(APIKey.keyName): FakeAPIKey.apiKey],
                               body: body)
         
         try drop.testResponse(to: request)
@@ -84,7 +84,7 @@ class RegistrationTests: TestCase {
     private func createUserWithSuccess(body: Body) throws {
         let request = Request(method: .post,
                               uri: "/api/v1/register",
-                              headers: ["Content-Type": "application/json"],
+                              headers: ["Content-Type": "application/json", HeaderKey(APIKey.keyName): FakeAPIKey.apiKey],
                               body: body)
         
         try drop.testResponse(to: request)

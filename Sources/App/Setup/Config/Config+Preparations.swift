@@ -8,6 +8,6 @@ extension Config {
         preparations.append(Project.self)
         preparations.append(ProjectUser.self)
         preparations.append(MeetingDate.self)
-        preparations.append(Pivot<User, MeetingDate>)
+        preparations.append(Pivot<User, MeetingDate>.self)
     }
 }

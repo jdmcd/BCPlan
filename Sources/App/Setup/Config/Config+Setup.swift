@@ -10,6 +10,7 @@ extension Config {
         Node.fuzzy = [Row.self, JSON.self, Node.self]
         
         try setupProviders()
+        try setupMiddleware()
         setupPreparations()
         try setupApiKey()
     }
@@ -19,6 +20,10 @@ extension Config {
         try addProvider(FluentProvider.Provider.self)
         try addProvider(MySQLProvider.Provider.self)
         try addProvider(AuthProvider.Provider.self)
+    }
+    
+    private func setupMiddleware() throws {
+        addConfigurable(middleware: RESTMiddleware(), name: "rest")
     }
     
     private func setupApiKey() throws {

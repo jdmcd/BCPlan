@@ -5,5 +5,6 @@ extension Droplet {
         try collection(RegisterController.self)
         try collection(LoginController.self)
         try collection(MeController.self)
+        try collection(ProjectsController.self)
     }
 }

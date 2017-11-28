@@ -18,4 +18,5 @@ extension Database {
 
 struct APIKey {
     static var apiKey = ""
+    static let keyName = "API-KEY"
 }

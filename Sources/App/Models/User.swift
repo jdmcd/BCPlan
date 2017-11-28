@@ -11,6 +11,14 @@ final class User: Model {
     var password: String
     var admin: Bool
     
+    var adminProjects: Children<User, Project> {
+        return children()
+    }
+    
+    var projectInvitations: Siblings<User, Project, ProjectUser> {
+        return siblings()
+    }
+    
     init(name: String, email: String, password: String, admin: Bool = false) throws {
         self.name = name
         self.email = try email.tested(by: EmailValidator())
@@ -47,6 +55,33 @@ final class User: Model {
         
         password = try json.get(Field.password)
         admin = try json.get(Field.admin) ?? false
+    }
+    
+    func acceptedProjects() throws -> [Project] {
+        return try projectInvitations.makeQuery().filter(ProjectUser.Field.attending, true).all()
+    }
+    
+    func pendingProjects() throws -> [Project] {
+        return try projectInvitations.makeQuery().filter(ProjectUser.Field.attending, false).all()
+    }
+
+    //this method could be made easier to read, but it's been left as is because
+    //it currently won't execute all three queries if the first is true
+    func userCanAccess(project: Project) throws -> Bool {
+        guard let projectId = project.id else { return false }
+        
+        //first check to see if they're an admin
+        if try adminProjects.makeQuery().filter(Project.Field.id, project.id).count() != 0 {
+            return true
+        } else if (try acceptedProjects().flatMap { $0.id }).contains(projectId) {
+            //it's an accepted project
+            return true
+        } else if (try pendingProjects().flatMap { $0.id }).contains(projectId) {
+            //it's a pending project
+            return true
+        }
+        
+        return false
     }
 }
 

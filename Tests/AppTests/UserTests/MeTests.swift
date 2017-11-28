@@ -23,7 +23,7 @@ class MeTests: TestCase {
         
         let request = Request(method: .get,
                               uri: "/api/v1/me",
-                              headers: ["Content-Type": "application/json", "Authorization": "Bearer \(token)"])
+                              headers: ["Content-Type": "application/json", "Authorization": "Bearer \(token)", HeaderKey(APIKey.keyName): FakeAPIKey.apiKey])
         
         try drop.testResponse(to: request)
             .assertStatus(is: .ok)
@@ -37,10 +37,10 @@ class MeTests: TestCase {
     func testNotAuthorized() throws {
         let request = Request(method: .get,
                               uri: "/api/v1/me",
-                              headers: ["Content-Type": "application/json", "Authorization": "Bearer RANDOMTOKEN"])
+                              headers: ["Content-Type": "application/json", "Authorization": "Bearer RANDOMTOKEN", HeaderKey(APIKey.keyName): FakeAPIKey.apiKey])
         
         try drop.testResponse(to: request)
-            .assertStatus(is: .forbidden)
+            .assertStatus(is: .unauthorized)
     }
     
     func testResetPasswordSuccess() throws {
@@ -54,7 +54,7 @@ class MeTests: TestCase {
         
         let request = Request(method: .patch,
                               uri: "/api/v1/password",
-                              headers: ["Content-Type": "application/json", "Authorization": "Bearer \(token)"],
+                              headers: ["Content-Type": "application/json", "Authorization": "Bearer \(token)", HeaderKey(APIKey.keyName): FakeAPIKey.apiKey],
                               body: body)
         
         try drop.testResponse(to: request)
@@ -71,7 +71,7 @@ class MeTests: TestCase {
         
         let loginRequest = Request(method: .post,
                               uri: "/api/v1/login",
-                              headers: ["Content-Type": "application/json"],
+                              headers: ["Content-Type": "application/json", HeaderKey(APIKey.keyName): FakeAPIKey.apiKey],
                               body: loginBody)
         
         try drop.testResponse(to: loginRequest)
@@ -91,7 +91,7 @@ class MeTests: TestCase {
         
         let request = Request(method: .patch,
                               uri: "/api/v1/password",
-                              headers: ["Content-Type": "application/json", "Authorization": "Bearer \(token)"],
+                              headers: ["Content-Type": "application/json", "Authorization": "Bearer \(token)", HeaderKey(APIKey.keyName): FakeAPIKey.apiKey],
                               body: body)
         
         try drop.testResponse(to: request)
@@ -113,7 +113,7 @@ class MeTests: TestCase {
         
         let request = Request(method: .post,
                               uri: "/api/v1/register",
-                              headers: ["Content-Type": "application/json"],
+                              headers: ["Content-Type": "application/json", HeaderKey(APIKey.keyName): FakeAPIKey.apiKey],
                               body: body)
         
         let response = try drop.testResponse(to: request)

@@ -7,5 +7,6 @@ extension Droplet {
         try collection(MeController.self)
         try collection(ProjectsController.self)
         try collection(InvitationController.self)
+        try collection(MeetingDateController.self)
     }
 }

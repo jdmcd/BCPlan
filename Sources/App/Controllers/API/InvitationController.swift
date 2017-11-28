@@ -25,6 +25,7 @@ final class InvitationController: RouteCollection {
         guard projectUser.user_id == userId else { throw Abort.notFound }
         
         if type == .deny {
+            //the user wants to deny the request, so we're going to delete it
             try projectUser.delete()
             return Response(status: .ok)
         } else {

@@ -7,7 +7,11 @@ final class ProjectUser: Model {
     
     var user_id: Identifier
     var project_id: Identifier
+    
+    //used to indicate whether the user will attend once a final meeting time has been determined
     var attending: Bool
+    
+    //used to indicate if the user accepts the invitation to join the group
     var accepted: Bool
 
     var user: Parent<ProjectUser, User> {

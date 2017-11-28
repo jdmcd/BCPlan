@@ -13,13 +13,6 @@ class LoginTests: TestCase {
     let email = "email@email.com"
     let password = "password"
     
-    override func setUp() {
-        super.setUp()
-        
-        try! Token.makeQuery().delete()
-        try! User.makeQuery().delete()
-    }
-    
     func testLogin() throws {
         let userJson = try createUser()
         

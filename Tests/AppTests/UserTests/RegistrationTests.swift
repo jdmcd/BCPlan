@@ -8,15 +8,6 @@ import HTTP
 class RegistrationTests: TestCase {
     let drop = try! Droplet.testable()
     
-    static let token = ""
-    
-    override func setUp() {
-        super.setUp()
-        
-        try! Token.makeQuery().delete()
-        try! User.makeQuery().delete()
-    }
-    
     func testRegister() throws {
         var json = JSON()
         

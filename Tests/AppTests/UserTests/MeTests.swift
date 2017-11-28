@@ -11,11 +11,7 @@ class MeTests: TestCase {
     
     override func setUp() {
         super.setUp()
-        
-        try! Token.makeQuery().delete()
-        try! User.makeQuery().delete()
-        
-        userJson = try! createUser()
+        userJson = try! createUser(drop: drop)
     }
     
     func testAuthorized() throws {
@@ -98,27 +94,6 @@ class MeTests: TestCase {
             .assertStatus(is: .unauthorized)
             .assertJSON("id", passes: { json in json.int == nil })
             .assertJSON("token", passes: { json in json.string == nil })
-    }
-    
-    //MARK: - createUser
-    @discardableResult
-    private func createUser() throws -> JSON? {
-        var json = JSON()
-        
-        try json.set(User.Field.name, "name")
-        try json.set(User.Field.email, "email@email.com")
-        try json.set(User.Field.password, "password")
-        
-        let body = try Body(json)
-        
-        let request = Request(method: .post,
-                              uri: "/api/v1/register",
-                              headers: ["Content-Type": "application/json", HeaderKey(APIKey.keyName): FakeAPIKey.apiKey],
-                              body: body)
-        
-        let response = try drop.testResponse(to: request)
-        guard let responseJson = response.json else { XCTFail(); return nil }
-        return responseJson
     }
 }
 

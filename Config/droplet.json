@@ -7,8 +7,8 @@
     "cipher": "crypto",
     
     "middleware": [
-        "rest",
         "error",
+        "rest",
         "date",
         "file"
     ],

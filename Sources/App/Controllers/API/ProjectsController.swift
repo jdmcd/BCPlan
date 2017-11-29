@@ -34,10 +34,21 @@ final class ProjectsController: RouteCollection {
     //MARK: - POST /api/v1/project
     func createProject(_ req: Request) throws -> ResponseRepresentable {
         guard var submittedJSON = req.json else { throw Abort.badRequest }
+        
+        //custom set fields
         try submittedJSON.set(Project.Field.user_id, try req.user().id)
+        try submittedJSON.set(Project.Field.chosenDate, nil)
         
         let newProject = try Project(json: submittedJSON)
         try newProject.save()
+
+        //save the project user for the admin
+        try ProjectUser(
+            user_id: try req.user().assertExists(),
+            project_id: try newProject.assertExists(),
+            attending: false,
+            accepted: true
+            ).save()
         
         return try newProject.makeJSON()
     }

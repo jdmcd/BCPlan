@@ -21,8 +21,7 @@ final class InvitationController: RouteCollection {
     private func acceptDeny(req: Request, type: AcceptDenyType) throws -> ResponseRepresentable {
         let projectUser: ProjectUser = try req.parameters.next()
         let user = try req.user()
-        guard let userId = user.id else { throw Abort.badRequest }
-        guard projectUser.user_id == userId else { throw Abort.notFound }
+        guard projectUser.user_id == (try user.assertExists())  else { throw Abort.notFound }
         
         if type == .deny {
             //the user wants to deny the request, so we're going to delete it

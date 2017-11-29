@@ -5,6 +5,7 @@ final class Project: Model {
     var storage = Storage()
     
     var name: String
+    var chosenDate: Date?
     
     //the admin of the project
     var user_id: Identifier
@@ -13,19 +14,22 @@ final class Project: Model {
         return parent(id: user_id)
     }
 
-    init(name: String, user_id: Identifier) {
+    init(name: String, user_id: Identifier, chosenDate: Date? = nil) {
         self.name = name
         self.user_id = user_id
+        self.chosenDate = chosenDate
     }
     
     init(row: Row) throws {
         name = try row.get(Project.Field.name)
         user_id = try row.get(Project.Field.user_id)
+        chosenDate = try row.get(Project.Field.chosenDate)
     }
 
     init(json: JSON) throws {
         name = try json.get(Project.Field.name)
         user_id = try json.get(Project.Field.user_id)
+        chosenDate = try json.get(Project.Field.chosenDate)
     }
     
     func makeRow() throws -> Row {
@@ -33,6 +37,7 @@ final class Project: Model {
 
         try row.set(Project.Field.name, name)
         try row.set(Project.Field.user_id, user_id)
+        try row.set(Project.Field.chosenDate, chosenDate)
 
         return row
     }
@@ -52,6 +57,18 @@ extension Project: Preparation {
     }
 }
 
+struct AddChosenDateToProject: Preparation {
+    static func prepare(_ database: Database) throws {
+        try database.modify(Project.self, closure: { modifier in
+            modifier.date(Project.Field.chosenDate.rawValue, optional: true)
+        })
+    }
+    
+    static func revert(_ database: Database) throws {
+        
+    }
+}
+
 //MARK: - JSONConvertible
 extension Project: JSONConvertible {
     func makeJSON() throws -> JSON {
@@ -60,6 +77,7 @@ extension Project: JSONConvertible {
         try json.set(Project.Field.id, id)
         try json.set(Project.Field.name, name)
         try json.set(Project.Field.user_id, user_id)
+        try json.set(Project.Field.chosenDate, chosenDate)
         try json.set(Project.createdAtKey, createdAt)
         try json.set(Project.updatedAtKey, updatedAt)
 
@@ -77,5 +95,6 @@ extension Project {
         case id
         case name
         case user_id
+        case chosenDate
     }
 }

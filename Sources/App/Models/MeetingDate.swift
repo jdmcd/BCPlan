@@ -10,6 +10,10 @@ final class MeetingDate: Model {
     var project: Parent<MeetingDate, Project> {
         return parent(id: project_id)
     }
+    
+    var userVotes: Siblings<MeetingDate, User, Pivot<User, MeetingDate>> {
+        return siblings()
+    }
 
     init(date: Date, project_id: Identifier) {
         self.date = date
@@ -33,6 +37,10 @@ final class MeetingDate: Model {
         try row.set(MeetingDate.Field.project_id, project_id)
 
         return row
+    }
+    
+    func votes() throws -> Int {
+        return try userVotes.count()
     }
 }
 

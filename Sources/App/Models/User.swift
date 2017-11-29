@@ -57,12 +57,21 @@ final class User: Model {
         admin = try json.get(Field.admin) ?? false
     }
     
+    //these are accepted projects that are not included in the admin projects
     func acceptedProjects() throws -> [Project] {
-        return try projectInvitations.makeQuery().filter(ProjectUser.self, ProjectUser.Field.accepted.rawValue, true).all()
+        return try projectInvitations
+            .makeQuery()
+            .filter(ProjectUser.self, ProjectUser.Field.accepted.rawValue, true)
+            .filter(Project.self, Project.Field.user_id.rawValue, .notEquals, id)
+            .all()
     }
     
     func pendingProjects() throws -> [Project] {
-        return try projectInvitations.makeQuery().filter(ProjectUser.self, ProjectUser.Field.accepted.rawValue, false).all()
+        return try projectInvitations
+            .makeQuery()
+            .filter(ProjectUser.self, ProjectUser.Field.accepted.rawValue, false)
+            .filter(Project.self, Project.Field.user_id.rawValue, .notEquals, id)
+            .all()
     }
     
     func attendingProjects() throws -> [Project] {

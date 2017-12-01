@@ -63,6 +63,7 @@ final class User: Model {
             .makeQuery()
             .filter(ProjectUser.self, ProjectUser.Field.accepted.rawValue, true)
             .filter(Project.self, Project.Field.user_id.rawValue, .notEquals, id)
+            .sort(ProjectUser.Field.id.rawValue, .descending)
             .all()
     }
     
@@ -71,6 +72,7 @@ final class User: Model {
             .makeQuery()
             .filter(ProjectUser.self, ProjectUser.Field.accepted.rawValue, false)
             .filter(Project.self, Project.Field.user_id.rawValue, .notEquals, id)
+            .sort(ProjectUser.Field.id.rawValue, .descending)
             .all()
     }
     

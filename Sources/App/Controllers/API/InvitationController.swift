@@ -5,6 +5,7 @@ final class InvitationController: RouteCollection {
         builder.versioned().auth() { build in
             build.post("/invitation", ProjectUser.parameter, "/accept", handler: accept)
             build.post("/invitation", ProjectUser.parameter, "/deny", handler: deny)
+            build.post("/project", Project.parameter, "/invite", User.parameter, handler: invite)
         }
     }
 
@@ -16,6 +17,22 @@ final class InvitationController: RouteCollection {
     //MARK: - POST /invitation/{project_user_id}/deny
     func deny(_ req: Request) throws -> ResponseRepresentable {
         return try acceptDeny(req: req, type: .deny)
+    }
+    
+    //MARK: - POST /project/{project_id}/invite/{user_id}
+    func invite(_ req: Request) throws -> ResponseRepresentable {
+        let authedUser = try req.user()
+        let project: Project = try req.parameters.next()
+        let invitedUser: User = try req.parameters.next()
+        
+        guard project.user_id == (try authedUser.assertExists()) else { throw Abort.badRequest }
+        
+        try ProjectUser(user_id: try invitedUser.assertExists(),
+                        project_id: try project.assertExists(),
+                        attending: false,
+                        accepted: false).save()
+        
+        return Response(status: .created)
     }
     
     private func acceptDeny(req: Request, type: AcceptDenyType) throws -> ResponseRepresentable {

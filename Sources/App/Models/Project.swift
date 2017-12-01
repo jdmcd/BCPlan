@@ -13,6 +13,14 @@ final class Project: Model {
     var user: Parent<Project, User> {
         return parent(id: user_id)
     }
+    
+    var projectUsers: Children<Project, ProjectUser> {
+        return children()
+    }
+    
+    var users: Siblings<Project, User, ProjectUser> {
+        return siblings()
+    }
 
     init(name: String, user_id: Identifier, chosenDate: Date? = nil) {
         self.name = name

@@ -21,6 +21,10 @@ final class Project: Model {
     var users: Siblings<Project, User, ProjectUser> {
         return siblings()
     }
+    
+    var meetingDates: Children<Project, MeetingDate> {
+        return children()
+    }
 
     init(name: String, user_id: Identifier, chosenDate: Date? = nil) {
         self.name = name

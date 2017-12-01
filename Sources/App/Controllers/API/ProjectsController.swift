@@ -26,6 +26,7 @@ final class ProjectsController: RouteCollection {
     
     //MARK: - GET /api/v1/project/{project_id}
     func project(_ req: Request) throws -> ResponseRepresentable {
+        
         let user = try req.user()
         let project: Project = try req.parameters.next()
         
@@ -50,6 +51,7 @@ final class ProjectsController: RouteCollection {
         }
         
         try baseProjectJSON.set("members", memberJson.makeJSON())
+        try baseProjectJSON.set("dates", try project.meetingDates.all().makeJSON())
         
         return baseProjectJSON
     }

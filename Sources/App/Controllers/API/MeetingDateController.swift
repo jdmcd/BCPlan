@@ -7,7 +7,7 @@ final class MeetingDateController: RouteCollection {
             build.post("/project", Project.parameter, "/dates", handler: addDatesToProject)
             build.post("/project", Project.parameter, "/date", handler: addDatetoProject)
             build.patch("/project", Project.parameter, "/date", MeetingDate.parameter, handler: pickDate)
-            build.post("/vote", MeetingDate.parameter, handler: pickDate)
+            build.post("/vote", MeetingDate.parameter, handler: vote)
             build.patch("/project", ProjectUser.parameter, handler: willAttend)
         }
     }
@@ -83,7 +83,12 @@ final class MeetingDateController: RouteCollection {
         guard try user.userCanAccess(project: project) else { throw Abort.notFound }
         
         //delete all current votes
-        try Pivot<User, MeetingDate>.makeQuery().filter("user_id", user.id).filter("meeting_date_id", meetingDate.id).delete()
+        let allMeetingDatesForProject = try project.meetingDates.all().flatMap { $0.id }
+        for meetingId in allMeetingDatesForProject {
+            try Pivot<User, MeetingDate>.makeQuery()
+                .filter("user_id", user.id)
+                .filter("meeting_date_id", meetingId).delete()
+        }
         
         let pivot = try Pivot<User, MeetingDate>(user, meetingDate)
         try pivot.save()

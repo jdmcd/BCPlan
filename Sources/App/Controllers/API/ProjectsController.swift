@@ -1,4 +1,5 @@
 import Vapor
+import Fluent
 
 final class ProjectsController: RouteCollection {
     func build(_ builder: RouteBuilder) throws {
@@ -55,10 +56,19 @@ final class ProjectsController: RouteCollection {
         
         var meetingDateJson = [JSON]()
         let meetingDates = try project.meetingDates.sort(MeetingDate.Field.date.rawValue, .ascending).all()
+        var votedFor: Int?
+        
         for meetingDate in meetingDates {
             var json = try meetingDate.makeJSON()
-            try json.set("votes", try meetingDate.userVotes.count())
+            
+            let votes = try meetingDate.userVotes.all()
+            
+            try json.set("votes", votes.count)
             try json.set("selected", project.meeting_date_id == meetingDate.id)
+            
+            if (votes.flatMap { $0.id?.int }).contains(user.id!.int!) {
+                votedFor = meetingDate.id!.int
+            }
             
             meetingDateJson.append(json)
         }
@@ -73,6 +83,7 @@ final class ProjectsController: RouteCollection {
         }
         
         try baseProjectJSON.set("attendingUsers", attendingUsers.makeJSON())
+        try baseProjectJSON.set("votedFor", votedFor)
         
         return baseProjectJSON
     }

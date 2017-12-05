@@ -35,6 +35,7 @@ final class ProjectsController: RouteCollection {
         let projectUsers = try project
             .projectUsers
             .makeQuery()
+            .filter(ProjectUser.Field.project_id, try project.assertExists())
             .filter(ProjectUser.Field.user_id.rawValue, .notEquals, try user.assertExists())
             .all()
         
@@ -64,12 +65,10 @@ final class ProjectsController: RouteCollection {
         
         try baseProjectJSON.set("dates", meetingDateJson.makeJSON())
         
-        guard let projectUser = try user.projectUsers.filter(ProjectUser.Field.project_id, project.assertExists()).first() else { throw Abort.badRequest }
-        
-        try baseProjectJSON.set("attending", projectUser.attending)
+        let projectUser = try user.projectUsers.filter(ProjectUser.Field.project_id, project.assertExists()).first()
         
         var attendingUsers = try projectUsers.filter { $0.attending }.flatMap { try $0.user.get() }
-        if projectUser.attending {
+        if let pU = projectUser, pU.attending {
             attendingUsers.append(user)
         }
         

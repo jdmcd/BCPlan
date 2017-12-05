@@ -19,6 +19,10 @@ final class User: Model {
         return siblings()
     }
     
+    var projectUsers: Children<User, ProjectUser> {
+        return children()
+    }
+    
     init(name: String, email: String, password: String, admin: Bool = false) throws {
         self.name = name
         self.email = try email.tested(by: EmailValidator())

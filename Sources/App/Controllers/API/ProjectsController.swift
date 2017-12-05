@@ -64,6 +64,17 @@ final class ProjectsController: RouteCollection {
         
         try baseProjectJSON.set("dates", meetingDateJson.makeJSON())
         
+        guard let projectUser = try user.projectUsers.filter(ProjectUser.Field.project_id, project.assertExists()).first() else { throw Abort.badRequest }
+        
+        try baseProjectJSON.set("attending", projectUser.attending)
+        
+        var attendingUsers = try projectUsers.filter { $0.attending }.flatMap { try $0.user.get() }
+        if projectUser.attending {
+            attendingUsers.append(user)
+        }
+        
+        try baseProjectJSON.set("attendingUsers", attendingUsers.makeJSON())
+        
         return baseProjectJSON
     }
     

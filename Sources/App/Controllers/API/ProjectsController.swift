@@ -123,14 +123,16 @@ final class ProjectsController: RouteCollection {
         
         let currentMemberIds = try project.users.all().flatMap { $0.id }
         
-        return try User
+        let userQuery = try User
             .makeQuery()
             .filter(User.Field.id.rawValue, .notEquals, user.id)
             .filter(User.Field.id.rawValue, notIn: currentMemberIds)
             .or { orQuery in
-                try orQuery.filter("name", query.lowercased())
-                try orQuery.filter("email", query.lowercased())
-            }.all().makeJSON()
+                try orQuery.filter("name", .contains, query.lowercased())
+                try orQuery.filter("email", .contains, query.lowercased())
+        }
+        
+        return try userQuery.all().makeJSON()
     }
 }
 

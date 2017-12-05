@@ -11,5 +11,6 @@ extension Config {
         preparations.append(Pivot<User, MeetingDate>.self)
         preparations.append(AddAcceptedToProjectUser.self)
         preparations.append(AddChosenDateToProject.self)
+        preparations.append(AddMeetingDateIdToProject.self)
     }
 }

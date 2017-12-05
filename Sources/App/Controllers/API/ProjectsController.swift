@@ -57,6 +57,7 @@ final class ProjectsController: RouteCollection {
         for meetingDate in meetingDates {
             var json = try meetingDate.makeJSON()
             try json.set("votes", try meetingDate.userVotes.count())
+            try json.set("selected", project.meeting_date_id == meetingDate.id)
             
             meetingDateJson.append(json)
         }
@@ -72,7 +73,7 @@ final class ProjectsController: RouteCollection {
         
         //custom set fields
         try submittedJSON.set(Project.Field.user_id, try req.user().id)
-        try submittedJSON.set(Project.Field.chosenDate, nil)
+        try submittedJSON.set(Project.Field.meeting_date_id, nil)
         
         let newProject = try Project(json: submittedJSON)
         try newProject.save()

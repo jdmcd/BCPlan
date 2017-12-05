@@ -50,7 +50,7 @@ final class MeetingDateController: RouteCollection {
         
         guard try user.assertExists() == project.user_id else { throw Abort.notFound }
         
-        project.chosenDate = meetingDate.date
+        project.meeting_date_id = meetingDate.id
         try project.save()
         
         let projectUserQuery = try ProjectUser
@@ -71,7 +71,7 @@ final class MeetingDateController: RouteCollection {
                 ).save()
         }
         
-        return try project.makeJSON()
+        return Response(status: .ok)
     }
     
     //MARK: - POST /vote/{meeting_date_id}

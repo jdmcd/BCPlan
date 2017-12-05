@@ -51,7 +51,17 @@ final class ProjectsController: RouteCollection {
         }
         
         try baseProjectJSON.set("members", memberJson.makeJSON())
-        try baseProjectJSON.set("dates", try project.meetingDates.all().makeJSON())
+        
+        var meetingDateJson = [JSON]()
+        let meetingDates = try project.meetingDates.sort(MeetingDate.Field.date.rawValue, .ascending).all()
+        for meetingDate in meetingDates {
+            var json = try meetingDate.makeJSON()
+            try json.set("votes", try meetingDate.userVotes.count())
+            
+            meetingDateJson.append(json)
+        }
+        
+        try baseProjectJSON.set("dates", meetingDateJson.makeJSON())
         
         return baseProjectJSON
     }

@@ -3,8 +3,9 @@ import Fluent
 
 final class MeetingDateController: RouteCollection {
     func build(_ builder: RouteBuilder) throws {
-        builder.version() { build in
+        builder.versioned().auth() { build in
             build.post("/project", Project.parameter, "/dates", handler: addDatesToProject)
+            build.post("/project", Project.parameter, "/date", handler: addDatetoProject)
             build.patch("/project", Project.parameter, "/date", MeetingDate.parameter, handler: pickDate)
             build.post("/vote", MeetingDate.parameter, handler: pickDate)
             build.patch("/project", ProjectUser.parameter, handler: willAttend)
@@ -25,6 +26,19 @@ final class MeetingDateController: RouteCollection {
             try MeetingDate(json: jsonObject).save()
         }
         
+        return Response(status: .ok)
+    }
+    
+    //MARK: - METHOD /project/{project_id}/date
+    func addDatetoProject(_ req: Request) throws -> ResponseRepresentable {
+        let user = try req.user()
+        let project: Project = try req.parameters.next()
+        
+        guard try user.assertExists() == project.user_id else { throw Abort.notFound }
+        guard var json = req.json else { throw Abort.badRequest }
+        try json.set("project_id", try project.assertExists())
+        try MeetingDate(json: json).save()
+
         return Response(status: .ok)
     }
     

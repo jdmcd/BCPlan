@@ -3,18 +3,18 @@ import Vapor
 final class InvitationController: RouteCollection {
     func build(_ builder: RouteBuilder) throws {
         builder.versioned().auth() { build in
-            build.post("/invitation", ProjectUser.parameter, "/accept", handler: accept)
-            build.post("/invitation", ProjectUser.parameter, "/deny", handler: deny)
+            build.post("/invitation", Project.parameter, "/accept", handler: accept)
+            build.post("/invitation", Project.parameter, "/deny", handler: deny)
             build.post("/project", Project.parameter, "/invite", User.parameter, handler: invite)
         }
     }
 
-    //MARK: - POST /invitation/{project_user_id}/accept
+    //MARK: - POST /invitation/{project}/{user_id}/accept
     func accept(_ req: Request) throws -> ResponseRepresentable {
         return try acceptDeny(req: req, type: .accept)
     }
     
-    //MARK: - POST /invitation/{project_user_id}/deny
+    //MARK: - POST /invitation/{project}/{user_id}/deny
     func deny(_ req: Request) throws -> ResponseRepresentable {
         return try acceptDeny(req: req, type: .deny)
     }
@@ -36,19 +36,20 @@ final class InvitationController: RouteCollection {
     }
     
     private func acceptDeny(req: Request, type: AcceptDenyType) throws -> ResponseRepresentable {
-        let projectUser: ProjectUser = try req.parameters.next()
-        let user = try req.user()
-        guard projectUser.user_id == (try user.assertExists())  else { throw Abort.notFound }
+        let project: Project = try req.parameters.next()
+        let projectUser: User = try req.user()
+        
+        guard let projectUserObject = try ProjectUser.makeQuery().filter(ProjectUser.Field.user_id, projectUser.id).filter(ProjectUser.Field.project_id, project.id).first() else { throw Abort.badRequest }
         
         if type == .deny {
             //the user wants to deny the request, so we're going to delete it
-            try projectUser.delete()
+            try projectUserObject.delete()
             return Response(status: .ok)
         } else {
-            projectUser.accepted = true
-            try projectUser.save()
+            projectUserObject.accepted = true
+            try projectUserObject.save()
             
-            return try projectUser.makeJSON()
+            return Response(status: .ok)
         }
     }
     

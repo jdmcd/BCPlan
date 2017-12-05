@@ -8,7 +8,8 @@ final class MeetingDateController: RouteCollection {
             build.post("/project", Project.parameter, "/date", handler: addDatetoProject)
             build.patch("/project", Project.parameter, "/date", MeetingDate.parameter, handler: pickDate)
             build.post("/vote", MeetingDate.parameter, handler: vote)
-            build.patch("/project", ProjectUser.parameter, handler: willAttend)
+            build.patch("/project", Project.parameter, "/attend", handler: willAttend)
+            build.patch("/project", Project.parameter, "/notAttend", handler: willNotAttend)
         }
     }
 
@@ -100,23 +101,32 @@ final class MeetingDateController: RouteCollection {
         return responseJSON
     }
     
-    //MARK: - PATCH /project/{project_user_id}
+    //MARK: - PATCH /project/{project_id}/attend
     func willAttend(_ req: Request) throws -> ResponseRepresentable {
-        let projectUser: ProjectUser = try req.parameters.next()
+        let project: Project = try req.parameters.next()
         let user = try req.user()
         
-        guard let project = try projectUser.project.get() else { throw Abort.badRequest }
-        guard let projectId = project.id else { throw Abort.badRequest }
+        guard try user.userCanAccess(project: project) else { throw Abort.badRequest }
+        guard let projectUser = try ProjectUser.makeQuery().filter(ProjectUser.Field.user_id, user.id).filter(ProjectUser.Field.project_id, project.id).first() else { throw Abort.badRequest }
         
-        //checks to see if they're either an admin or they have already accepted this project
-        let adminProjectsCheck = try user.adminProjects.makeQuery().filter(Project.Field.id, project.id).count() != 0
-        let acceptedProjectsCheck = (try user.acceptedProjects().flatMap { $0.id }).contains(projectId)
-        guard adminProjectsCheck || acceptedProjectsCheck else { throw Abort.notFound }
-
         projectUser.attending = true
         try projectUser.save()
         
-        return try projectUser.makeJSON()
+        return Response(status: .ok)
+    }
+    
+    //MARK: - PATCH /project/{project_id}/notAttend
+    func willNotAttend(_ req: Request) throws -> ResponseRepresentable {
+        let project: Project = try req.parameters.next()
+        let user = try req.user()
+        
+        guard try user.userCanAccess(project: project) else { throw Abort.badRequest }
+        guard let projectUser = try ProjectUser.makeQuery().filter(ProjectUser.Field.user_id, user.id).filter(ProjectUser.Field.project_id, project.id).first() else { throw Abort.badRequest }
+        
+        projectUser.attending = false
+        try projectUser.save()
+        
+        return Response(status: .ok)
     }
 }
 

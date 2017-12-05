@@ -80,6 +80,9 @@ final class ProjectsController: RouteCollection {
         var attendingUsers = try projectUsers.filter { $0.attending }.flatMap { try $0.user.get() }
         if let pU = projectUser, pU.attending {
             attendingUsers.append(user)
+            try baseProjectJSON.set("attending", true)
+        } else {
+            try baseProjectJSON.set("attending", false)
         }
         
         try baseProjectJSON.set("attendingUsers", attendingUsers.makeJSON())
